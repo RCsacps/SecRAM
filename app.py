@@ -74,17 +74,6 @@ criteria_data = {
     },
 }
 
-# --- Helper Function for Risk Bands ---
-def get_risk_level(score):
-    if score < 1.5:
-        return "LOW RISK", "🟢", st.success
-    elif score < 3.0:
-        return "MEDIUM RISK", "🟡", st.warning
-    elif score < 4.0:
-        return "HIGH RISK", "🟠", st.error
-    else:
-        return "CRITICAL RISK", "🔴", st.error
-
 # --- Reset Logic ---
 if "form_key" not in st.session_state:
     st.session_state.form_key = 0
@@ -124,33 +113,13 @@ if submitted:
         
         summary_text += f"• {label}: {selected_option}\n"
     
-    final_score = round(total_weighted_score, 2)
-    risk_label, icon, alert_func = get_risk_level(final_score)
-    
-    summary_text += f"\nFINAL CALCULATED RISK SCORE: {final_score} / 5.0\n"
-    summary_text += f"RISK LEVEL: {risk_label}\n"
+    summary_text += f"\nFINAL CALCULATED RISK SCORE: {round(total_weighted_score, 2)} / 5.0"
 
     st.divider()
     st.subheader("Results")
+    st.metric("Total Risk Score", f"{round(total_weighted_score, 2)} / 5.0")
     
-    # Display overall metric & alert banner
-    col_score, col_level = st.columns(2)
-    with col_score:
-        st.metric("Total Risk Score", f"{final_score} / 5.0")
-    with col_level:
-        st.metric("Risk Level", f"{icon} {risk_label}")
-
-    alert_func(f"**Assessment Complete:** Event rated as **{risk_label}**.")
-    
-    st.write("### Summary Output")
-    st.caption("Click the copy icon in the top-right of the box below to paste into calendar invites or emails.")
+    st.write("### Calendar Invite Summary")
+    st.caption("Click the icon in the top right of the box below to copy all text.")
+    # st.code provides a built-in copy button
     st.code(summary_text, language="text")
-
-    # Download summary feature
-    st.download_button(
-        label="📄 Download Assessment Summary (.txt)",
-        data=summary_text,
-        file_name="security_risk_assessment.txt",
-        mime="text/plain",
-        use_container_width=True
-    )
